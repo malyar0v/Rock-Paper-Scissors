@@ -1,0 +1,128 @@
+body {
+  height: 100vh;
+}
+
+img {
+  width: 90%;
+  height: 100%;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.container {
+  height: 100vh;
+}
+
+.progress {
+  width: 100%;
+}
+
+
+#name {
+  font-size: 4rem;
+  width: 30%;
+  margin: 2% auto;
+  border: 0;
+}
+
+#play-btn {
+  font-size: 4rem;
+  padding: 5px 10px;
+  margin: 2% auto;
+  width: 30%;
+}
+
+.stage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#choices {
+  height: 20%;
+}
+
+.choice {
+  padding: 0;
+}
+
+#opponent {
+  font-size: 4rem;
+}
+
+#result {
+  font-size: 6rem;
+}
+
+#play-again-btn {
+  font-size: 4rem;
+  padding: 5px 10px;
+  margin: 2% auto;
+  width: 45%;
+}
+
+/*
+  Utilities
+*/
+
+
+/*
+  Media
+*/
+@media (max-width: 1000px) {
+
+  #opponent {
+    font-size: 3rem;
+  }
+
+  #name {
+    width: 50%;
+  }
+
+  #play-btn {
+    width: 50%;
+  }
+
+  #play-again-btn {
+    width: 65%;
+  }
+}
+
+@media (max-width: 780px) {
+
+  #opponent {
+    font-size: 2.5rem;
+  }
+
+  #name {
+    width: 60%;
+  }
+
+  #play-btn {
+    width: 60%;
+  }
+
+  #play-again-btn {
+    width: 75%;
+  }
+}
+
+@media (max-width: 600px) {
+
+  #opponent {
+    font-size: 1.8rem;
+  }
+
+  #name {
+    width: 75%;
+  }
+
+  #play-btn {
+    width: 75%;
+  }
+
+  #play-again-btn {
+    width: 85%;
+  }
+}

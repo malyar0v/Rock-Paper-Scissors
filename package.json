@@ -1,0 +1,18 @@
+{
+  "name": "prax5",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ws": "^6.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.7"
+  }
+}
