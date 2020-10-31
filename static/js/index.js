@@ -1,48 +1,47 @@
 import {
-  getChoiceStage,
-  getProgressStage,
-  getStartStage,
-  getResultStage
-} from "./stages.js";
+  START,
+  LOADING,
+  CHOICE,
+  RESULTS,
+  renderPlainComponent,
+  populateChoiceComponent,
+  populateResultsComponent,
+} from './components.js'
 
 const HOST = location.origin.replace(/^http/, 'ws')
 
 let ws
 let name
 
+renderPlainComponent(START)
 initWS()
 
 function initWS() {
-
   ws = new WebSocket(HOST)
 
-  ws.onopen = () => console.log("Connection established")
+  ws.onopen = () => console.log('Connection established')
 
   ws.onmessage = (msg) => onMessage(msg)
-  ws.onerror = (err) => console.log("Error " + err)
+  ws.onerror = (err) => console.log('Error ' + err)
 }
 
-window.onClick = onClick
-
-function onClick() {
-
+document.querySelector('#play-btn').addEventListener('click', (e) => {
   name = document.getElementById('name').value
 
-  switchStage(getProgressStage())
+  renderPlainComponent(LOADING)
 
   send(ws, 'player', {
-    name
+    name,
   })
-}
+})
 
 function onChoice(choice) {
-
   send(ws, 'choice', {
     name,
-    choice
+    choice,
   })
 
-  switchStage(getProgressStage())
+  renderPlainComponent(LOADING)
 }
 
 function onMessage(msg) {
@@ -51,9 +50,9 @@ function onMessage(msg) {
 
   switch (json.type) {
     case 'opponent':
-
       const name = data.name
-      switchStage(getChoiceStage(name))
+      renderPlainComponent(CHOICE)
+      populateChoiceComponent(name)
 
       document.getElementById('rock').onclick = () => onChoice('r')
       document.getElementById('paper').onclick = () => onChoice('p')
@@ -61,34 +60,38 @@ function onMessage(msg) {
       break
 
     case 'result':
-
       console.log(json)
       const result = data.result
-      const p1 = data.p1
-      const p2 = data.p2
 
-      switchStage(getResultStage(p1, p2, result))
+      const p1Choice = data.p1.choice
+      const p2Choice = data.p2.choice
+
+      renderPlainComponent(RESULTS)
+      populateResultsComponent(p1Choice, p2Choice, result)
 
       document.getElementById('play-again-btn').onclick = () => {
-        switchStage(getStartStage())
+        renderPlainComponent(LOADING)
+
+        send(ws, 'rematch', {
+          name: data.p1.name,
+          opponent: data.p2.name,
+        })
       }
       break
 
     case 'error':
       console.log(data.message)
-      switchStage(getStartStage())
+      renderPlainComponent(START)
   }
 }
 
-function switchStage(html) {
-  document.getElementById('container').innerHTML = html
-}
-
 function send(ws, type, data) {
-  ws.send(toJson({
-    type,
-    data
-  }))
+  ws.send(
+    toJson({
+      type,
+      data,
+    })
+  )
 }
 
 function toJson(object) {

@@ -1,5 +1,4 @@
 class GameService {
-
   constructor() {
     this.players = []
     this.games = {}
@@ -15,7 +14,7 @@ class GameService {
 
   getOpponent() {
     this.players.pop()
-    return this.players.pop();
+    return this.players.pop()
   }
 
   isRegistered(name) {
@@ -26,24 +25,33 @@ class GameService {
     this.games[player1] = {
       p1: {
         name: player1,
-        choice: ''
+        choice: '',
+        rematch: false,
       },
       p2: {
         name: player2,
-        choice: ''
-      }
+        choice: '',
+        rematch: false,
+      },
     }
 
     this.games[player2] = {
       p1: {
         name: player2,
-        choice: ''
+        choice: '',
+        rematch: false,
       },
       p2: {
         name: player1,
-        choice: ''
-      }
+        choice: '',
+        rematch: false,
+      },
     }
+  }
+
+  removeGame(player1, player2) {
+    delete this.games[player1]
+    delete this.games[player2]
   }
 
   choose(name, choice) {
@@ -66,6 +74,17 @@ class GameService {
 
   getGameByPlayer(name) {
     return this.games[name]
+  }
+
+  setRematch(player, doRematch) {
+    player.rematch = doRematch
+  }
+
+  wantRematch(p1, p2) {
+    return (
+      this.getGameByPlayer(p1).p1.rematch === true &&
+      this.getGameByPlayer(p2).p1.rematch === true
+    )
   }
 }
 
