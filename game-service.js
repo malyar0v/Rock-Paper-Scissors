@@ -8,13 +8,20 @@ class GameService {
     this.players.push(name)
   }
 
+  unregisterPlayer(name) {
+    const idx = this.players.indexOf(name)
+
+    if (idx >= 0) {
+      this.players.splice(idx, 1)
+    }
+  }
+
   isOpponentAvailable() {
     return this.players.length > 1
   }
 
   getOpponent() {
-    this.players.pop()
-    return this.players.pop()
+    return this.players[0]
   }
 
   isRegistered(name) {

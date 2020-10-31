@@ -1,11 +1,16 @@
 class WebsocketService {
-
   constructor() {
     this.connections = {}
   }
 
-  addConnection(id, con) {
-    this.connections[id] = con
+  addConnection(id, ws) {
+    this.connections[id] = ws
+
+    ws.on('close', (code) => {
+      console.log(`Closing WS for: ${id}`)
+
+      ws.isAlive = false
+    })
   }
 
   getConnection(id) {

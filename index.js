@@ -56,9 +56,31 @@ const wss = new WebSocket.Server({ server })
 const gameService = new GameService()
 const websocketService = new WebsocketService()
 
+const pingInterval = setInterval(() => {
+  console.log(`Number of clients: ${wss.clients.size}`)
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      console.log(`Connection alive: false`)
+
+      return ws.terminate()
+    }
+
+    ws.isAlive = false
+    ws.ping(() => {})
+  })
+}, 5000)
+
+wss.on('close', () => {
+  console.log('WS server closing!')
+  clearInterval(pingInterval)
+})
+
 wss.on('connection', (ws) => {
-  wss.on('close', (ws) => {
-    console.log('Connection closed!')
+  ws.isAlive = true
+  ws.on('pong', () => {
+    ws.isAlive = true
+
+    console.log(`Connection alive: true`)
   })
 
   ws.on('message', (message) => {
@@ -80,13 +102,23 @@ wss.on('connection', (ws) => {
           break
         }
 
-        gameService.registerPlayer(name, ws)
+        gameService.registerPlayer(name)
         websocketService.addConnection(name, ws)
 
         if (gameService.isOpponentAvailable()) {
           const opponent = gameService.getOpponent()
 
+          if (websocketService.getConnection(opponent).isAlive === false) {
+            console.log('Potential opponent is disconnected!')
+
+            gameService.unregisterPlayer(opponent)
+
+            break
+          }
+
           gameService.addGame(name, opponent)
+          gameService.unregisterPlayer(name)
+          gameService.unregisterPlayer(opponent)
 
           console.log(`Found a pair! ${name}-${opponent}`)
 
