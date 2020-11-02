@@ -5,6 +5,7 @@ import {
   RESULTS,
   renderPlainComponent,
   populateChoiceComponent,
+  populateLoadingComponent,
   populateResultsComponent,
 } from './components.js'
 
@@ -29,6 +30,7 @@ document.querySelector('#play-btn').addEventListener('click', (e) => {
   name = document.getElementById('name').value
 
   renderPlainComponent(LOADING)
+  populateLoadingComponent(`Looking for an opponent!`)
 
   send(ws, 'player', {
     name,
@@ -42,6 +44,7 @@ function onChoice(choice) {
   })
 
   renderPlainComponent(LOADING)
+  populateLoadingComponent(`Waiting for your opponent to choose!`)
 }
 
 function onMessage(msg) {
@@ -71,6 +74,7 @@ function onMessage(msg) {
 
       document.getElementById('play-again-btn').onclick = () => {
         renderPlainComponent(LOADING)
+        populateLoadingComponent(`Waiting for ${data.p2.name} to accept!`)
 
         send(ws, 'rematch', {
           name: data.p1.name,

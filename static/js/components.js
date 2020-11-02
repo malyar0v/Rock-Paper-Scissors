@@ -35,6 +35,10 @@ export function populateChoiceComponent(name) {
   document.querySelector('#opponent').textContent = `Playing against ${name}!`
 }
 
+export function populateLoadingComponent(msg) {
+  document.querySelector('#loading-component h3').textContent = `${msg}`
+}
+
 export function populateResultsComponent(p1, p2, result) {
   document.querySelector('#choice-1 > img').setAttribute('src', IMAGES[p1])
   document.querySelector('#choice-2 > img').setAttribute('src', IMAGES[p2])

@@ -9,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Rock-Paper-Scissors</title>
 
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" /> -->
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
     <script defer type="module" src="js/index.js"></script>
@@ -17,7 +17,6 @@
   <body>
     <div id="container" class="container">
       <div id="start-component" class="component d-none">
-        <label for="name"></label>
         <input placeholder="Name" id="name" name="name" type="text" />
         <button id="play-btn" type="button" class="btn btn-success">
           PLAY
@@ -25,47 +24,39 @@
       </div>
 
       <div id="loading-component" class="component d-none">
-        <div id="loading" class="progress">
-          <div
-            class="progress-bar progress-bar-striped progress-bar-animated"
-            role="progressbar"
-            aria-valuenow="100"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            style="width: 100%"
-          ></div>
+        <h3>Some msg</h3>
+        <div class="meter">
+          <span style="width: 100%"><span class="progress"></span></span>
         </div>
       </div>
 
       <div id="choice-component" class="component d-none">
-        <div id="choices" class="row text-center">
-          <div id="rock" class="choice col-4">
+        <h3 id="opponent">Playing Against ${opponent}</h3>
+        <div class="choices">
+          <div id="rock" class="choice">
             <img src="img/rock.svg" alt="" />
           </div>
-          <div id="paper" class="choice col-4">
+          <div id="paper" class="choice">
             <img src="img/paper.svg" alt="" />
           </div>
-          <div id="scissors" class="choice col-4">
+          <div id="scissors" class="choice">
             <img src="img/scissors.svg" alt="" />
           </div>
         </div>
-        <div id="opponent" class="text-center">Playing Against ${opponent}</div>
       </div>
 
       <div id="results-component" class="component d-none">
-        <div id="choices" class="row text-center">
-          <div id="choice-1" class="choice offset-2 col-4">
+        <div class="choices">
+          <div id="choice-1" class="choice">
             <img src="" alt="" />
           </div>
-          <div id="choice-2" class="choice col-4">
+          <div id="choice-2" class="choice">
             <img src="" alt="" />
           </div>
         </div>
-        <div id="results" class="text-center">${RESULTS[result]}</div>
+        <h2 id="results">${RESULTS[result]}</h2>
 
-        <button id="play-again-btn" type="button" class="btn btn-success">
-          REMATCH
-        </button>
+        <button id="play-again-btn" type="button" class="btn">REMATCH</button>
       </div>
     </div>
   </body>

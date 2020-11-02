@@ -48,6 +48,12 @@ function sendFile(path, resp, type, absolute = false) {
   })
 }
 
+/* class C {
+  listener(ws) {
+    console.log(`Event emitted in C!`)
+  }
+} */
+
 /*
  * Websocket server
  * */
@@ -57,13 +63,8 @@ const gameService = new GameService()
 const websocketService = new WebsocketService()
 
 const pingInterval = setInterval(() => {
-  console.log(`Number of clients: ${wss.clients.size}`)
   wss.clients.forEach((ws) => {
-    if (ws.isAlive === false) {
-      console.log(`Connection alive: false`)
-
-      return ws.terminate()
-    }
+    if (ws.isAlive === false) return ws.terminate()
 
     ws.isAlive = false
     ws.ping(() => {})
@@ -77,11 +78,8 @@ wss.on('close', () => {
 
 wss.on('connection', (ws) => {
   ws.isAlive = true
-  ws.on('pong', () => {
-    ws.isAlive = true
 
-    console.log(`Connection alive: true`)
-  })
+  ws.on('pong', () => (ws.isAlive = true))
 
   ws.on('message', (message) => {
     const json = JSON.parse(message)

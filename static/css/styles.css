@@ -1,123 +1,161 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   height: 100vh;
 }
 
-img {
-  width: 90%;
-  height: 100%;
-  margin: 0 auto;
-  cursor: pointer;
+h3,
+h2 {
+  font-family: monospace;
 }
 
 .container {
   height: 100vh;
 }
 
-.loading {
-  width: 100%;
-}
-
-#name {
-  font-size: 4rem;
-  width: 30%;
-  margin: 2% auto;
-  border: 0;
-}
-
-#play-btn {
-  font-size: 4rem;
-  padding: 5px 10px;
-  margin: 2% auto;
-  width: 30%;
-}
-
 .component {
+  width: 80%;
   height: 100%;
+  margin: auto;
   display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.d-none {
+  display: none;
+}
+
+.d-flex {
+  display: flex;
+}
+
+#start-component {
+  justify-content: center;
+}
+
+.btn {
+  color: #fff;
+  background-color: green;
+  font-family: monospace;
+  font-size: 1.5em;
+  border: 0;
+  border-radius: 4px;
+}
+
+input {
+  font-family: monospace;
+  padding: 5px;
+  border: 2px solid green;
+  border-radius: 4px;
+}
+
+#start-component > input {
+  margin-right: 25px;
+}
+
+input::placeholder {
+  color: #000;
+}
+
+#start-component > button {
+  width: 90px;
+  height: 40px;
+}
+
+#loading-component {
   flex-direction: column;
   justify-content: center;
 }
 
-#choices {
-  height: 20%;
+.component > h3 {
+  margin: 25px 0;
+}
+
+/* Progress bar */
+
+.meter {
+  width: 100%;
+  height: 10px;
+  position: relative;
+  background: #f3efe6;
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+}
+
+.progress {
+  background-color: green;
+  -webkit-animation: progressBar 1.5s ease-in-out infinite;
+  -webkit-animation-fill-mode: both;
+  -moz-animation: progressBar 1.5s ease-in-out infinite;
+  -moz-animation-fill-mode: both;
+}
+
+@-webkit-keyframes progressBar {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@-moz-keyframes progressBar {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* --- */
+
+#choice-component {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.choices {
+  display: flex;
+  justify-content: space-between;
 }
 
 .choice {
-  padding: 0;
+  margin: 0 15px;
 }
 
-#opponent {
-  font-size: 4rem;
+.choice > img {
+  width: 100%;
+  cursor: pointer;
 }
 
-#results {
-  font-size: 6rem;
+#results-component {
+  flex-direction: column;
+  justify-content: center;
 }
 
-#play-again-btn {
-  font-size: 4rem;
-  padding: 5px 10px;
-  margin: 2% auto;
-  width: 45%;
+#results-component button {
+  width: 100px;
+  height: 40px;
 }
 
-/*
-  Utilities
-*/
-
-/*
-  Media
-*/
-@media (max-width: 1000px) {
-  #opponent {
-    font-size: 3rem;
-  }
-
-  #name {
-    width: 50%;
-  }
-
-  #play-btn {
-    width: 50%;
-  }
-
-  #play-again-btn {
-    width: 65%;
-  }
+.component > h2 {
+  font-size: 2em;
 }
 
-@media (max-width: 780px) {
-  #opponent {
-    font-size: 2.5rem;
-  }
-
-  #name {
-    width: 60%;
-  }
-
-  #play-btn {
-    width: 60%;
-  }
-
-  #play-again-btn {
-    width: 75%;
-  }
+#results-component > * {
+  margin-bottom: 35px;
 }
 
-@media (max-width: 600px) {
-  #opponent {
-    font-size: 1.8rem;
-  }
-
-  #name {
-    width: 75%;
-  }
-
-  #play-btn {
-    width: 75%;
-  }
-
-  #play-again-btn {
-    width: 85%;
-  }
+#results-component > *:last-child {
+  margin-bottom: 0;
 }
