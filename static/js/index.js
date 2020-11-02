@@ -1,8 +1,5 @@
 import {
-  START,
-  LOADING,
-  CHOICE,
-  RESULTS,
+  Components,
   renderPlainComponent,
   populateChoiceComponent,
   populateLoadingComponent,
@@ -14,7 +11,7 @@ const HOST = location.origin.replace(/^http/, 'ws')
 let ws
 let name
 
-renderPlainComponent(START)
+renderPlainComponent(Components.START)
 initWS()
 
 function initWS() {
@@ -26,10 +23,10 @@ function initWS() {
   ws.onerror = (err) => console.log('Error ' + err)
 }
 
-document.querySelector('#play-btn').addEventListener('click', (e) => {
+document.getElementById('play-btn').addEventListener('click', (e) => {
   name = document.getElementById('name').value
 
-  renderPlainComponent(LOADING)
+  renderPlainComponent(Components.LOADING)
   populateLoadingComponent(`Looking for an opponent!`)
 
   send(ws, 'player', {
@@ -43,7 +40,7 @@ function onChoice(choice) {
     choice,
   })
 
-  renderPlainComponent(LOADING)
+  renderPlainComponent(Components.LOADING)
   populateLoadingComponent(`Waiting for your opponent to choose!`)
 }
 
@@ -54,7 +51,7 @@ function onMessage(msg) {
   switch (json.type) {
     case 'opponent':
       const name = data.name
-      renderPlainComponent(CHOICE)
+      renderPlainComponent(Components.CHOICE)
       populateChoiceComponent(name)
 
       document.getElementById('rock').onclick = () => onChoice('r')
@@ -69,11 +66,11 @@ function onMessage(msg) {
       const p1Choice = data.p1.choice
       const p2Choice = data.p2.choice
 
-      renderPlainComponent(RESULTS)
+      renderPlainComponent(Components.RESULTS)
       populateResultsComponent(p1Choice, p2Choice, result)
 
-      document.getElementById('play-again-btn').onclick = () => {
-        renderPlainComponent(LOADING)
+      document.getElementById('rematch-btn').onclick = () => {
+        renderPlainComponent(Components.LOADING)
         populateLoadingComponent(`Waiting for ${data.p2.name} to accept!`)
 
         send(ws, 'rematch', {
@@ -81,11 +78,16 @@ function onMessage(msg) {
           opponent: data.p2.name,
         })
       }
+
+      document.getElementById('play-again-btn').onclick = () => {
+        renderPlainComponent(Components.START)
+      }
+
       break
 
     case 'error':
       console.log(data.message)
-      renderPlainComponent(START)
+      renderPlainComponent(Components.START)
   }
 }
 

@@ -9,18 +9,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Rock-Paper-Scissors</title>
 
-    <!-- <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" /> -->
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
     <script defer type="module" src="js/index.js"></script>
   </head>
   <body>
-    <div id="container" class="container">
+    <div class="container">
       <div id="start-component" class="component d-none">
         <input placeholder="Name" id="name" name="name" type="text" />
-        <button id="play-btn" type="button" class="btn btn-success">
-          PLAY
-        </button>
+        <button id="play-btn" type="button" class="btn">PLAY</button>
       </div>
 
       <div id="loading-component" class="component d-none">
@@ -31,7 +28,7 @@
       </div>
 
       <div id="choice-component" class="component d-none">
-        <h3 id="opponent">Playing Against ${opponent}</h3>
+        <h3>Playing Against ${opponent}</h3>
         <div class="choices">
           <div id="rock" class="choice">
             <img src="img/rock.svg" alt="" />
@@ -47,16 +44,19 @@
 
       <div id="results-component" class="component d-none">
         <div class="choices">
-          <div id="choice-1" class="choice">
+          <div class="choice">
             <img src="" alt="" />
           </div>
-          <div id="choice-2" class="choice">
+          <div class="choice">
             <img src="" alt="" />
           </div>
         </div>
-        <h2 id="results">${RESULTS[result]}</h2>
+        <h2>${RESULTS[result]}</h2>
 
-        <button id="play-again-btn" type="button" class="btn">REMATCH</button>
+        <button id="rematch-btn" type="button" class="btn">REMATCH</button>
+        <button id="play-again-btn" type="button" class="btn">
+          PLAY AGAIN
+        </button>
       </div>
     </div>
   </body>

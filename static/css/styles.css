@@ -40,17 +40,23 @@ h2 {
 
 .btn {
   color: #fff;
-  background-color: green;
+  background-color: #4caf50;
   font-family: monospace;
   font-size: 1.5em;
   border: 0;
   border-radius: 4px;
+  cursor: pointer;
+  outline-color: #00600f;
+}
+
+.btn:focus {
+  background-color: #087f23;
 }
 
 input {
   font-family: monospace;
   padding: 5px;
-  border: 2px solid green;
+  border: 2px solid #4caf50;
   border-radius: 4px;
 }
 
@@ -73,7 +79,8 @@ input::placeholder {
 }
 
 .component > h3 {
-  margin: 25px 0;
+  font-size: 1.5rem;
+  margin-bottom: 40px;
 }
 
 /* Progress bar */
@@ -92,7 +99,7 @@ input::placeholder {
 }
 
 .progress {
-  background-color: green;
+  background-color: #4caf50;
   -webkit-animation: progressBar 1.5s ease-in-out infinite;
   -webkit-animation-fill-mode: both;
   -moz-animation: progressBar 1.5s ease-in-out infinite;
@@ -144,18 +151,69 @@ input::placeholder {
 }
 
 #results-component button {
-  width: 100px;
+  width: 130px;
   height: 40px;
 }
 
 .component > h2 {
-  font-size: 2em;
+  font-size: 3rem;
 }
 
 #results-component > * {
-  margin-bottom: 35px;
+  margin-bottom: 50px;
 }
 
-#results-component > *:last-child {
+#results-component > *:nth-last-child(2) {
+  margin-bottom: 25px;
+}
+
+#results-component > *:nth-last-child(1) {
   margin-bottom: 0;
+}
+
+@media only screen and (min-width: 550px) {
+  #start-component > input {
+    margin-right: 60px;
+  }
+
+  input {
+    width: 250px;
+    height: 2.5rem;
+    font-size: 1.2rem;
+  }
+
+  input::placeholder {
+    font-size: 1.2rem;
+  }
+
+  .btn {
+    font-size: 2.5rem;
+  }
+
+  #start-component > button {
+    width: 120px;
+    height: 55px;
+  }
+
+  .component > h3 {
+    font-size: 2rem;
+    margin-bottom: 80px;
+  }
+
+  .choice > img {
+    width: 160px;
+  }
+
+  .component > h2 {
+    font-size: 4rem;
+  }
+
+  #results-component > * {
+    margin-bottom: 80px;
+  }
+
+  #results-component button {
+    width: 210px;
+    height: 55px;
+  }
 }
