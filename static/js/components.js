@@ -8,7 +8,7 @@ PAPER = 'p'
 SCISSORS = 's'
 */
 
-const RESULTS_MESSAGES = { w: 'You won', l: 'You lost', t: 'A tie' }
+const RESULTS_MESSAGES = { w: 'You won!', l: 'You lost!', t: 'A tie!' }
 const COLORS = { w: '#006db3', l: '#F44336', t: '#FF9800' }
 const IMAGES = {
   r: 'img/rock.svg',

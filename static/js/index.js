@@ -1,17 +1,31 @@
 import {
-  Components,
-  renderPlainComponent,
-  populateChoiceComponent,
-  populateLoadingComponent,
-  populateResultsComponent,
-} from './components.js'
+  EventEmitter,
+  PlayerEvent,
+  ChoiceEvent,
+  OpponentEventHandler,
+  ResultEventHandler,
+  ErrorEventHandler,
+  OpponentEvent,
+  ResultEvent,
+  ErrorEvent,
+  PlayAgainEvent,
+  RematchEvent,
+  PlayerEventUiUpdate,
+  ChoiceEventUIUpdate,
+  RematchEventUIUpdate,
+  PlayAgainEventUIUpdate,
+  UiUpdater,
+  StartUiUpdate,
+} from './events.js'
 
 const HOST = location.origin.replace(/^http/, 'ws')
 
 let ws
 let name
 
-renderPlainComponent(Components.START)
+const uiUpdater = new UiUpdater()
+uiUpdater.update(new StartUiUpdate())
+
 initWS()
 
 function initWS() {
@@ -23,83 +37,81 @@ function initWS() {
   ws.onerror = (err) => console.log('Error ' + err)
 }
 
+const eventEmitter = new EventEmitter(ws)
+
 document.getElementById('play-btn').addEventListener('click', (e) => {
   name = document.getElementById('name').value
 
-  renderPlainComponent(Components.LOADING)
-  populateLoadingComponent(`Looking for an opponent!`)
+  const event = new PlayerEvent(name)
+  const uiUpdate = new PlayerEventUiUpdate()
 
-  send(ws, 'player', {
-    name,
-  })
+  eventEmitter.emit(event)
+  uiUpdater.update(uiUpdate)
 })
 
-function onChoice(choice) {
-  send(ws, 'choice', {
-    name,
-    choice,
-  })
+document.getElementById('rock').onclick = () => {
+  const event = new ChoiceEvent(name, 'r')
+  const uiUpdate = new ChoiceEventUIUpdate()
 
-  renderPlainComponent(Components.LOADING)
-  populateLoadingComponent(`Waiting for your opponent to choose!`)
+  eventEmitter.emit(event)
+  uiUpdater.update(uiUpdate)
+}
+document.getElementById('paper').onclick = () => {
+  const event = new ChoiceEvent(name, 'p')
+  const uiUpdate = new ChoiceEventUIUpdate()
+
+  eventEmitter.emit(event)
+  uiUpdater.update(uiUpdate)
+}
+document.getElementById('scissors').onclick = () => {
+  const event = new ChoiceEvent(name, 's')
+  const uiUpdate = new ChoiceEventUIUpdate()
+
+  eventEmitter.emit(event)
+  uiUpdater.update(uiUpdate)
 }
 
-function onMessage(msg) {
-  const json = JSON.parse(msg.data)
-  const data = json.data
+document.getElementById('rematch-btn').onclick = () => {
+  const event = new RematchEvent(name)
+  const uiUpdate = new RematchEventUIUpdate(name)
 
-  switch (json.type) {
-    case 'opponent':
-      const name = data.name
-      renderPlainComponent(Components.CHOICE)
-      populateChoiceComponent(name)
-
-      document.getElementById('rock').onclick = () => onChoice('r')
-      document.getElementById('paper').onclick = () => onChoice('p')
-      document.getElementById('scissors').onclick = () => onChoice('s')
-      break
-
-    case 'result':
-      console.log(json)
-      const result = data.result
-
-      const p1Choice = data.p1.choice
-      const p2Choice = data.p2.choice
-
-      renderPlainComponent(Components.RESULTS)
-      populateResultsComponent(p1Choice, p2Choice, result)
-
-      document.getElementById('rematch-btn').onclick = () => {
-        renderPlainComponent(Components.LOADING)
-        populateLoadingComponent(`Waiting for ${data.p2.name} to accept!`)
-
-        send(ws, 'rematch', {
-          name: data.p1.name,
-          opponent: data.p2.name,
-        })
-      }
-
-      document.getElementById('play-again-btn').onclick = () => {
-        renderPlainComponent(Components.START)
-      }
-
-      break
-
-    case 'error':
-      console.log(data.message)
-      renderPlainComponent(Components.START)
-  }
+  eventEmitter.emit(event)
+  uiUpdater.update(uiUpdate)
 }
 
-function send(ws, type, data) {
-  ws.send(
-    toJson({
-      type,
-      data,
-    })
-  )
+document.getElementById('play-again-btn').onclick = () => {
+  const event = new PlayAgainEvent(name)
+  const uiUpdate = new PlayAgainEventUIUpdate()
+
+  eventEmitter.emit(event)
+  uiUpdater.update(uiUpdate)
 }
 
-function toJson(object) {
-  return JSON.stringify(object)
+const opponentEventHandler = new OpponentEventHandler(uiUpdater)
+const resultEventHandler = new ResultEventHandler(uiUpdater)
+const errorEventHandler = new ErrorEventHandler(uiUpdater)
+
+const handlers = {
+  opponent: (data) => {
+    const event = new OpponentEvent(data)
+    opponentEventHandler.handle(event)
+  },
+  result: (data) => {
+    const event = new ResultEvent(data)
+    resultEventHandler.handle(event)
+  },
+  error: (data) => {
+    const event = new ErrorEvent(data)
+    errorEventHandler.handle(event)
+  },
+}
+
+function onMessage(message) {
+  const msg = JSON.parse(message.data)
+  const data = msg.data
+
+  const event = msg.event
+  const handler = handlers[event]
+
+  handler(data)
 }

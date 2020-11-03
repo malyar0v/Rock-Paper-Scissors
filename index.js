@@ -2,13 +2,22 @@ const http = require('http')
 
 const WebSocket = require('ws')
 const fs = require('fs')
-const GameService = require('./game-service.js')
-const WebsocketService = require('./websocket-service.js')
-const getResult = require('./results.js')
+const { GameService } = require('./game-service.js')
 
 /*
  * Resources server
  * */
+const contentTypes = {
+  js: 'application/javascript',
+  css: 'text/css',
+  html: 'text/html',
+  svg: 'image/svg+xml',
+}
+
+function getContentType(route) {
+  return contentTypes[route.split('.').pop()]
+}
+
 const server = http
   .createServer((req, resp) => {
     const route = req.url
@@ -22,17 +31,6 @@ const server = http
     }
   })
   .listen(process.env.PORT || 8080)
-
-const contentTypes = {
-  js: 'application/javascript',
-  css: 'text/css',
-  html: 'text/html',
-  svg: 'image/svg+xml',
-}
-
-function getContentType(route) {
-  return contentTypes[route.split('.').pop()]
-}
 
 function sendFile(path, resp, type, absolute = false) {
   fs.readFile(absolute ? path : `static${path}`, (err, data) => {
@@ -48,19 +46,12 @@ function sendFile(path, resp, type, absolute = false) {
   })
 }
 
-/* class C {
-  listener(ws) {
-    console.log(`Event emitted in C!`)
-  }
-} */
-
 /*
  * Websocket server
  * */
 const wss = new WebSocket.Server({ server })
 
 const gameService = new GameService()
-const websocketService = new WebsocketService()
 
 const pingInterval = setInterval(() => {
   wss.clients.forEach((ws) => {
@@ -81,146 +72,18 @@ wss.on('connection', (ws) => {
 
   ws.on('pong', () => (ws.isAlive = true))
 
-  ws.on('message', (message) => {
-    const json = JSON.parse(message)
-
-    console.log(json)
-
-    const data = json.data
-    const name = data.name
-
-    switch (json.type) {
-      case 'player': {
-        if (gameService.isRegistered(name)) {
-          send(ws, 'error', {
-            code: 0,
-            message: `${name} is already taken!`,
-          })
-
-          break
-        }
-
-        gameService.registerPlayer(name)
-        websocketService.addConnection(name, ws)
-
-        if (gameService.isOpponentAvailable()) {
-          const opponent = gameService.getOpponent()
-
-          if (websocketService.getConnection(opponent).isAlive === false) {
-            console.log('Potential opponent is disconnected!')
-
-            gameService.unregisterPlayer(opponent)
-
-            break
-          }
-
-          gameService.addGame(name, opponent)
-          gameService.unregisterPlayer(name)
-          gameService.unregisterPlayer(opponent)
-
-          console.log(`Found a pair! ${name}-${opponent}`)
-
-          websocketService.broadcast(
-            name,
-            opponent,
-            (ws) => send(ws, 'opponent', { name: opponent }),
-            (ws) => send(ws, 'opponent', { name: name })
-          )
-        }
-
-        break
-      }
-
-      case 'choice': {
-        if (!gameService.isPlaying(name)) {
-          send(ws, 'error', {
-            code: 1,
-            message: `${name} is not playing the game!`,
-          })
-
-          break
-        }
-        const choice = data.choice // r, p, s
-
-        const game = gameService.getGameByPlayer(name)
-        const opponent = game.p2.name
-
-        if (!gameService.hasChosen(name)) {
-          gameService.choose(name, choice)
-        }
-
-        if (gameService.hasChosen(opponent)) {
-          const opponentChoice = gameService.getOpponentChoice(name)
-
-          websocketService.broadcast(
-            name,
-            opponent,
-            (ws) => {
-              send(ws, 'result', {
-                p1: {
-                  name,
-                  choice,
-                },
-                p2: {
-                  name: opponent,
-                  choice: opponentChoice,
-                },
-                result: getResult(choice, opponentChoice),
-              })
-            },
-            (ws) => {
-              send(ws, 'result', {
-                p1: {
-                  name: opponent,
-                  choice: opponentChoice,
-                },
-                p2: {
-                  name,
-                  choice,
-                },
-                result: getResult(opponentChoice, choice),
-              })
-            }
-          )
-        }
-
-        if (gameService.hasChosen(name) && gameService.hasChosen(opponent)) {
-          // Both chose
-        }
-
-        break
-      }
-      case 'rematch': {
-        const name = data.name
-        const opponent = data.opponent
-
-        gameService.setRematch(gameService.getGameByPlayer(name).p1, true)
-
-        if (gameService.wantRematch(name, opponent)) {
-          gameService.removeGame(name, opponent)
-          gameService.addGame(name, opponent)
-
-          websocketService.broadcast(
-            name,
-            opponent,
-            (ws) => send(ws, 'opponent', { name: opponent }),
-            (ws) => send(ws, 'opponent', { name: name })
-          )
-        }
-      }
-    }
-  })
+  ws.addEventListener('message', onMessage)
+  ws.addEventListener('close', onClose)
 })
 
-function send(ws, type, data) {
-  ws.send(
-    toJson({
-      type,
-      data,
-    })
-  )
+function onMessage(message) {
+  const msg = JSON.parse(message.data)
+
+  console.log(msg)
+
+  gameService.onMessage(msg, this)
 }
 
-function toJson(object) {
-  return JSON.stringify(object)
+function onClose(code) {
+  gameService.onClose(code, this)
 }

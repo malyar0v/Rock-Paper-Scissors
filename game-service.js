@@ -1,98 +1,99 @@
+const { EventController } = require('./events')
+const { Player, PlayerService } = require('./player-service')
+const { send } = require('./utils')
+
 class GameService {
   constructor() {
-    this.players = []
-    this.games = {}
+    this.games = new Set()
+
+    this.playerService = new PlayerService()
+    this.eventController = new EventController(this, this.playerService)
   }
 
-  registerPlayer(name) {
-    this.players.push(name)
+  onMessage(msg, ws) {
+    const event = msg.event
+    const data = msg.data
+
+    const name = data.name
+
+    let player = new Player(name, ws)
+
+    if (msg.event == 'player') {
+      if (this.playerService.isRegistered(player)) {
+        console.log(`Player with ${name} name is already registered!`)
+
+        return
+      }
+    } else {
+      player = this.playerService.getPlayer(name)
+    }
+
+    ws.player = player
+
+    this.eventController.process(msg, player)
   }
 
-  unregisterPlayer(name) {
-    const idx = this.players.indexOf(name)
+  onClose(closeEvent, ws) {
+    const player = ws.player
 
-    if (idx >= 0) {
-      this.players.splice(idx, 1)
+    if (player !== undefined) {
+      console.log(`${player.name} disconnected! Code: ${closeEvent.code}`)
+
+      this.playerService.unregister(player)
+      this.playerService.unqueue(player)
+    } else {
+      console.log('Anonymous client disconnected!')
     }
   }
 
-  isOpponentAvailable() {
-    return this.players.length > 1
-  }
+  broadcast(game, event, forP1, forP2) {
+    const p1 = game.p1
+    const p2 = game.p2
 
-  getOpponent() {
-    return this.players[0]
-  }
-
-  isRegistered(name) {
-    return this.players.includes(name)
-  }
-
-  addGame(player1, player2) {
-    this.games[player1] = {
-      p1: {
-        name: player1,
-        choice: '',
-        rematch: false,
-      },
-      p2: {
-        name: player2,
-        choice: '',
-        rematch: false,
-      },
+    const p1Fun = (data) => {
+      send(p1.ws, event, data)
     }
 
-    this.games[player2] = {
-      p1: {
-        name: player2,
-        choice: '',
-        rematch: false,
-      },
-      p2: {
-        name: player1,
-        choice: '',
-        rematch: false,
-      },
+    const p2Fun = (data) => {
+      send(p2.ws, event, data)
     }
+
+    forP1(p1, p2, p1Fun)
+    forP2(p2, p1, p2Fun)
   }
 
-  removeGame(player1, player2) {
-    delete this.games[player1]
-    delete this.games[player2]
+  addGame(game) {
+    this.games.add(game)
   }
 
-  choose(name, choice) {
-    const opponent = this.games[name].p2.name
-    this.games[name].p1.choice = choice
-    this.games[opponent].p2.choice = choice
+  removeGame(game) {
+    this.games.delete(game)
   }
 
-  hasChosen(name) {
-    return this.getGameByPlayer(name).p1.choice.length !== 0
+  playerState(player) {
+    return player.game.state.playerState(player)
   }
 
-  getOpponentChoice(name) {
-    return this.getGameByPlayer(name).p2.choice
+  choose(player, choice) {
+    this.playerState(player).choice = choice
   }
 
-  isPlaying(name) {
-    return name in this.games
-  }
-
-  getGameByPlayer(name) {
-    return this.games[name]
+  hasChosen(player) {
+    return this.playerState(player).choice !== ''
   }
 
   setRematch(player, doRematch) {
-    player.rematch = doRematch
+    this.playerState(player).rematch = doRematch
   }
 
   wantRematch(p1, p2) {
     return (
-      this.getGameByPlayer(p1).p1.rematch === true &&
-      this.getGameByPlayer(p2).p1.rematch === true
+      this.playerState(p1).rematch === true &&
+      this.playerState(p2).rematch === true
     )
   }
 }
 
-module.exports = GameService
+module.exports = {
+  GameService: GameService,
+}
